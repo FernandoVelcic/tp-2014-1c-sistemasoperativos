@@ -25,7 +25,7 @@ OBJS +=  \
 ../commons/Debug/parser/metadata_program.o  \
 ../commons/Debug/parser/parser.o
 
-all: crearDir config.o Consola.o CPU.o handshake.o Kernel.o memoria.o mocks.o Programa.o Segmento.o UMV.o UMV
+all: crearDir config.o Consola.o CPU.o handshake.o Kernel.o memoria.o Programa.o Segmento.o UMV.o UMV
 
 UMV: $(OBJS)
 	gcc -lpthread -pthread -o ./Debug/UMV $(OBJS)
@@ -47,9 +47,6 @@ Kernel.o: ./src/Kernel.c ./src/Kernel.h
 
 memoria.o: ./src/memoria.c ./src/memoria.h 
 	gcc -I ../commons -c ./src/memoria.c -o ./Debug/memoria.o
-
-mocks.o: ./src/mocks.c ./src/mocks.h 
-	gcc -I ../commons -c ./src/mocks.c -o ./Debug/mocks.o
 
 Programa.o: ./src/Programa.c ./src/Programa.h 
 	gcc -I ../commons -c ./src/Programa.c -o ./Debug/Programa.o
