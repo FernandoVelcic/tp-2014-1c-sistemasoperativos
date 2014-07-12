@@ -283,7 +283,7 @@ void printSegmentosHeaders(char porDondeImprimo) {
 	}
 	else{
 		fprintf( archivoDump, "\n\t\t\t|  Inicio Real  \t|     Fin  Real   \t|  Tamaño\t|\n");
-		fprintf( archivoDump, "------------------|-----------------------|-----------------------|-----------------|\n");
+		fprintf( archivoDump, "-------------------|-------------------|------------------------|-------------------|\n");
 	}
 }
 
@@ -333,7 +333,7 @@ void printSegmentos(t_list * segmentos, char porDondeImprimo) {
 		if(porDondeImprimo == PorCONSOLA)
 			printf("------------------|-----------------------|-----------------------|-----------------|\n");
 		else
-			fprintf( archivoDump, "------------------|-----------------------|-----------------------|-----------------|\n");
+			fprintf( archivoDump, "-------------------|-------------------|------------------------|-------------------|\n");
 	}
 
 	int i = 0;
@@ -373,7 +373,7 @@ void printSegmento(Segmento * segmento, char porDondeImprimo) {
 	if (porDondeImprimo == PorCONSOLA)
 		printf( "\t%04d\t|\t%04d\t|\t%04d\t|\t%05d |\n", segmento->id, segmento->inicioReal, segmento->finReal, tamanioSegmento(segmento));
 	else
-		fprintf( archivoDump, "\t%04d\t|\t  %04d\t\t|\t    %04d\t\t|\t%05d\t|\n", segmento->id, segmento->inicioReal, segmento->finReal, tamanioSegmento(segmento));
+		fprintf( archivoDump, "\t%04d\t|\t  %04d\t|\t    %04d\t\t|\t%05d\t|\n", segmento->id, segmento->inicioReal, segmento->finReal, tamanioSegmento(segmento));
 
 }
 
@@ -381,7 +381,7 @@ void printEspacioLibre(uint32_t inicioEspacio, uint32_t finEspacio, char porDond
 	if (porDondeImprimo == PorCONSOLA)
 		printf("\tLibre\t|\t%04d\t|\t%04d\t|\t%05d\n", inicioEspacio, finEspacio, finEspacio - inicioEspacio + 1);
 	else
-		fprintf( archivoDump, "\tLibre\t|\t  %04d  \t\t|\t   %04d  \t|\t%05d\t|\n", inicioEspacio, finEspacio, finEspacio - inicioEspacio + 1);
+		fprintf( archivoDump, "\tLibre\t|\t  %04d  \t|\t   %04d  \t|\t%05d\t|\n", inicioEspacio, finEspacio, finEspacio - inicioEspacio + 1);
 }
 
 int imprimirListaDeProgramas(){
