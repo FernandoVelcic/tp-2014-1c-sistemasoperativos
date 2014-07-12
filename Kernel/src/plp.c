@@ -16,7 +16,7 @@ extern sem_t dispatcherReady;
 
 
 void *IniciarPlp(void *arg) {
-	logplp = log_create("log_plp.txt", "KernelPLP", 1, LOG_LEVEL_TRACE);
+	//logplp = log_create("log_plp.txt", "KernelPLP", 1, LOG_LEVEL_TRACE);
 	log_debug(logplp, "Thread iniciado");
 
 	if( conectarUMV() )

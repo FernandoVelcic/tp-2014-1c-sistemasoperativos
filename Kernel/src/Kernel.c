@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
+	logplp = logpcp = log_create("log.txt", "Kernel", 1, LOG_LEVEL_TRACE);
+
 	crear_colas();
 
 	sem_init(&semKernel, 0, 0);

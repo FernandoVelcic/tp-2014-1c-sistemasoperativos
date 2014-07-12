@@ -15,7 +15,7 @@ sem_t dispatcherReady, dispatcherCpu;
 
 void *IniciarPcp(void *arg)
 {
-	logpcp = log_create("log_pcp.txt", "KernelPCP", 1, LOG_LEVEL_TRACE);
+	//logpcp = log_create("log_pcp.txt", "KernelPCP", 1, LOG_LEVEL_TRACE);
 	log_debug(logpcp, "Thread iniciado");
 
 	pthread_create(&dispatcherThread, NULL, &Dispatcher, NULL);
