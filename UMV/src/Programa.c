@@ -149,7 +149,7 @@ bool destruirPrograma( Programa * programa )
 		if( programa != NULL)
 		{
 			log_info( logger, "Destruyendo programa con pid: %d", programa->pid);
-			pthread_rwlock_rdlock(&lockEscrituraLectura);
+
 			borrarSegmento( programa->stack );
 			borrarSegmento( programa->script );
 
@@ -157,7 +157,7 @@ bool destruirPrograma( Programa * programa )
 			borrarSegmento( programa->etiquetas );
 
 			borrarSegmento( programa->instrucciones );
-			pthread_rwlock_unlock(&lockEscrituraLectura);
+
 			free( programa );
 
 			return true;
