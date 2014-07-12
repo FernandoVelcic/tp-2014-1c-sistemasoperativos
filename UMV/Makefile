@@ -5,7 +5,6 @@ OBJS +=  \
 ./Debug/handshake.o  \
 ./Debug/Kernel.o  \
 ./Debug/memoria.o  \
-./Debug/mocks.o  \
 ./Debug/Programa.o  \
 ./Debug/Segmento.o  \
 ./Debug/UMV.o  \
