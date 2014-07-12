@@ -107,7 +107,6 @@ void operacionesConSegmentos() {
 		pthread_rwlock_wrlock(&lockEscrituraLectura);
 		Segmento * segmento = buscarSegmentoEnTabla( idSeg);
 		borrarSegmento( segmento);
-
 		pthread_rwlock_unlock(&lockEscrituraLectura);
 		break;
 
