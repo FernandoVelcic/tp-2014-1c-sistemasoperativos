@@ -311,14 +311,14 @@ void imprimirBytes( uint32_t base, uint32_t offset, uint32_t tamanio, char porDo
 	uint32_t i, hastaLoQueDe= 0;
 	unsigned char * mem = memoriaCorrida;
 	if (porDondeImprimo == PorCONSOLA){
-		printf("Direccion  | \t\t\tHex Dump\t\t\t|     ASCII\n");
+		printf("Direccion  | \t\tHex Dump\t\t\t|     ASCII\n");
 		printf("---------------------------------------------------------------------------------\n");
 		printf("    %05d  | ", alBuffer);
 	}
 	else{
-		fprintf( archivoDump, "Direccion  | \t\t\tHex Dump\t\t\t|     ASCII\n");
+		fprintf( archivoDump, "Direccion  \t| \t\t\t\t\tHex Dump  \t\t\t\t   |     ASCII\n");
 		fprintf( archivoDump, "---------------------------------------------------------------------------------\n");
-		fprintf( archivoDump, "    %05d  | ", alBuffer);
+		fprintf( archivoDump, "    %05d  \t| ", alBuffer);
 	}
 
 	for (i = 0; i < tamanio; i++)
@@ -341,7 +341,7 @@ void imprimirBytes( uint32_t base, uint32_t offset, uint32_t tamanio, char porDo
 				if( porDondeImprimo == PorCONSOLA)
 					printf("-- ");
 				else
-					fprintf( archivoDump, "-- ");
+					fprintf( archivoDump, "  -- ");
 			}
 			if (porDondeImprimo == PorCONSOLA)
 				mostrarCaracteres( hastaLoQueDe, mem, PorCONSOLA);
@@ -358,7 +358,7 @@ void imprimirBytes( uint32_t base, uint32_t offset, uint32_t tamanio, char porDo
 			else{
 				mostrarCaracteres( hastaLoQueDe, mem, PorARCHIVO);
 				fprintf( archivoDump, "\n---------------------------------------------------------------------------------\n");
-				fprintf( archivoDump, "    %05d  | ", alBuffer);
+				fprintf( archivoDump, "    %05d  \t| ", alBuffer);
 			}
 			mem += hastaLoQueDe;
 			alBuffer += hastaLoQueDe;

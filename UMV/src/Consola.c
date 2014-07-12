@@ -245,7 +245,9 @@ void generarDump() {
 		break;
 	case 'd':
 		fprintf(archivoDump, "\nContenido de la memoria principal:\n");
+		pthread_rwlock_rdlock(&lockEscrituraLectura);
 		imprimirMemoria();
+		pthread_rwlock_unlock(&lockEscrituraLectura);
 		break;
 	default:
 		log_error(logger, "El comando ingresado es invalido");
@@ -256,14 +258,14 @@ void generarDump() {
 
 void imprimirMemoria(){
 	uint32_t offset, tamanio;
-	printf("Indique un offset desde el comienzo de la memoria");
+	printf("Indique un offset desde el comienzo de la memoria\n");
 	scanf("%d", &offset);
 	while( getchar() != '\n');
-	printf("Indique una cantidad de bytes");
+	printf("Indique una cantidad de bytes\n");
 	scanf("%d", &tamanio);
 	while( getchar() != '\n');
-	printf("El tamanio es %d", tamanio);
-	printf("El offset es %d", offset);
+	printf("El tamanio es: %d\n", tamanio);
+	printf("El offset es: %d\n", offset);
 
 	if( memoria_size < (tamanio + offset)){
 		log_error( logger, "Se ha producido Segmentation Fault a causa de indicar una cantidad de bytes que sobrepasa el tamaño de la memoria");
@@ -295,6 +297,7 @@ void imprimirSegmentosDe(Programa *programa) {
 }
 
 void printSegmentosPorPrograma() {
+	pthread_rwlock_rdlock(&lockEscrituraLectura);
 	uint32_t tamanioProgramas;
 	tamanioProgramas = list_size(programas);
 	int i = 0;
@@ -302,12 +305,14 @@ void printSegmentosPorPrograma() {
 		Programa * programa = list_get(programas, i);
 		imprimirSegmentosDe(programa);
 	}
+	pthread_rwlock_unlock(&lockEscrituraLectura);
 
 }
 
 void buscarProgramaEImprimirSegmentos() {
 	uint32_t pid;
 	Programa *programaAImprimir;
+	pthread_rwlock_rdlock(&lockEscrituraLectura);
 	if(!imprimirListaDeProgramas()) return;
 	printf("Ingrese el id del programa para imprimir sus segmentos\n");
 
@@ -316,10 +321,11 @@ void buscarProgramaEImprimirSegmentos() {
 	programaAImprimir = buscarPrograma(pid);
 	fprintf( archivoDump, "\nTabla de segmento de:");
 	imprimirSegmentosDe(programaAImprimir);
-
+	pthread_rwlock_unlock(&lockEscrituraLectura);
 }
 
 void printSegmentos(t_list * segmentos, char porDondeImprimo) {
+	pthread_rwlock_rdlock(&lockEscrituraLectura);
 	ordenarTablaSegmentos();
 	printSegmentosHeaders(porDondeImprimo);
 
@@ -360,6 +366,7 @@ void printSegmentos(t_list * segmentos, char porDondeImprimo) {
 			fprintf( archivoDump, "------------------------------------------------------------------------------------|\n");
 
 	}
+	pthread_rwlock_unlock(&lockEscrituraLectura);
 }
 
 void printSegmento(Segmento * segmento, char porDondeImprimo) {
