@@ -18,7 +18,6 @@
 #define PorARCHIVO 1
 
 void * iniciarConsola(void * params);
-uint32_t parsearComando(char * comando);
 void operacionesConSegmentos();
 void modificarAlgoCreacionSegmentos();
 void modificarRetardoUMV();
@@ -37,5 +36,5 @@ void printEspacioLibre(uint32_t inicioEspacio, uint32_t finEspacio, char porDond
 bool verificarRequisitos( uint32_t programa, uint32_t base);
 
 void imprimirSegmentosDe(Programa * programaAImprimir);
-int imprimirListaDeProgramas();
+bool imprimirListaDeProgramas();
 #endif

@@ -35,10 +35,10 @@ void compactar();
 uint32_t memoriaOcupada();
 uint32_t memoriaLibre();
 
-uint32_t solicitarPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tamanio);
+bool solicitarPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tamanio);
 void imprimirBytes( uint32_t base, uint32_t offset, uint32_t tamanio, char porDondeImprimo);
 void mostrarCaracteres( uint32_t cantidad, unsigned char * mem, char porDondeImprimo);
-uint32_t escribirPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tamanio, uint32_t  buffer[]);
+bool escribirPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tamanio, uint32_t  buffer[]);
 bool chequearSegmentatiosFault( Segmento * segmento, uint32_t offset, uint32_t tamanio);
 
 

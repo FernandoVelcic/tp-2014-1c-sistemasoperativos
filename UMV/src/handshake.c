@@ -3,7 +3,8 @@
 
 extern t_log * logger;
 
-void * handShake(void * socket) {
+void * handShake(void * socket)
+{
 	socket_header sHandshake;
 
 	if( recv(*(int *) socket, &sHandshake, sizeof(socket_header), MSG_WAITALL) != sizeof(socket_header) )
@@ -12,8 +13,8 @@ void * handShake(void * socket) {
 		return NULL;
 	}
 
-	switch (sHandshake.code) {
-
+	switch (sHandshake.code)
+	{
 	case 'k':
 		fnKernelConectado(*(int*)socket);
 		break;
@@ -29,8 +30,8 @@ void * handShake(void * socket) {
 	return NULL ;
 }
 
-void * crearConexiones() {
-
+void * crearConexiones()
+{
 	crearServidor(config_get_int_value(umvConfig, "PUERTO"), handShake, logger);
 	return NULL ;
 }

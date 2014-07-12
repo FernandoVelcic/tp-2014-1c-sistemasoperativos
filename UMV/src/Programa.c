@@ -5,13 +5,10 @@
 extern t_log * logger;
 extern pthread_rwlock_t lockEscrituraLectura;
 
-Programa *crearPrograma(uint32_t pid, void *script, void *etiquetas, void *instrucciones_serializado, socket_pedirMemoria *pedidoMemoria) {
-
+Programa *crearPrograma(uint32_t pid, void *script, void *etiquetas, void *instrucciones_serializado, socket_pedirMemoria *pedidoMemoria)
+{
 	Programa *programa = malloc(sizeof(Programa));
-
 	programa->pid = pid;
-
-	srand(time(NULL));
 
 	pthread_rwlock_rdlock(&lockEscrituraLectura);
 
@@ -19,10 +16,18 @@ Programa *crearPrograma(uint32_t pid, void *script, void *etiquetas, void *instr
 	programa->script = crearYllenarSegmento(pedidoMemoria->codeSegmentSize, script);
 	programa->instrucciones = crearYllenarSegmento(pedidoMemoria->instruccionesSegmentSize,instrucciones_serializado);
 
-	crearDireccionesVirtuales(programa->stack, pedidoMemoria->stackSegmentSize, 0);
+	if(list_is_empty(programas))
+	{
+		crearDireccionesVirtuales(programa->stack, pedidoMemoria->stackSegmentSize, 0);
+	}else{
+		Programa *ultimoPrograma = list_get(programas, list_size(programas) - 1);
+		crearDireccionesVirtuales(programa->stack, pedidoMemoria->stackSegmentSize, ultimoPrograma->instrucciones->finVirtual);
+	}
+
 	crearDireccionesVirtuales(programa->script, pedidoMemoria->codeSegmentSize, programa->stack->finVirtual);
 
-	if(pedidoMemoria->etiquetasSegmentSize == 0){
+	if(pedidoMemoria->etiquetasSegmentSize == 0)
+	{
 		programa->etiquetas = NULL;
 		crearDireccionesVirtuales(programa->instrucciones, pedidoMemoria->instruccionesSegmentSize, programa->script->finVirtual);
 	}else{
@@ -32,14 +37,6 @@ Programa *crearPrograma(uint32_t pid, void *script, void *etiquetas, void *instr
 	}
 
 	list_add(programas, programa);
-	printf( "stack %d\t\t%d\n", programa->stack->inicioVirtual,programa->stack->finVirtual);
-	printf( "script %d\t\t%d\n", programa->script->inicioVirtual,programa->script->finVirtual);
-	if( programa->etiquetas == NULL){
-		printf("El segmento de etiquetas esta vacio\n");
-		}else{
-			printf( "etiquetas %d\t\t%d\n", programa->etiquetas->inicioVirtual,programa->etiquetas->finVirtual);
-			}
-	printf( "instrucciones %d\t\t%d\n", programa->instrucciones->inicioVirtual,programa->instrucciones->finVirtual);
 
 	pthread_rwlock_unlock(&lockEscrituraLectura);
 
@@ -47,14 +44,15 @@ Programa *crearPrograma(uint32_t pid, void *script, void *etiquetas, void *instr
 
 }
 
-socket_umvpcb crearEstructuraParaPCB(Programa * programa) {
-
+socket_umvpcb crearEstructuraParaPCB(Programa * programa)
+{
 	socket_umvpcb datosSegmentos;
 	uint32_t etiquetas;
 
 	datosSegmentos.stackSegment = programa->stack->inicioVirtual;
 	datosSegmentos.codeSegment = programa->script->inicioVirtual;
-	if( programa->etiquetas == NULL){
+	if( programa->etiquetas == NULL)
+	{
 		etiquetas = SEGMENTOVACIO;
 	}else{
 		etiquetas = programa->etiquetas->inicioVirtual;
@@ -66,58 +64,67 @@ socket_umvpcb crearEstructuraParaPCB(Programa * programa) {
 	return datosSegmentos;
 }
 
-Segmento * crearDireccionesVirtuales(Segmento * segmento,
-		uint32_t tamanioSegmento, uint32_t finVirtualDelAnterior) {
-
-		uint32_t seed = finVirtualDelAnterior + 1;
-		segmento->inicioVirtual = rand() % 417 + seed;
-		segmento->finVirtual = segmento->inicioVirtual + tamanioSegmento - 1;
+Segmento * crearDireccionesVirtuales(Segmento * segmento, uint32_t tamanioSegmento, uint32_t finVirtualDelAnterior)
+{
+	uint32_t seed = finVirtualDelAnterior + 1;
+	segmento->inicioVirtual = rand() % 417 + seed;
+	segmento->finVirtual = segmento->inicioVirtual + tamanioSegmento - 1;
 
 	return segmento;
-
-
-
 }
 
 
-Programa *buscarPrograma(uint32_t pid) {
-	bool matchearPrograma(Programa *nodoPrograma) {
+Programa *buscarPrograma(uint32_t pid)
+{
+	bool matchearPrograma(Programa *nodoPrograma)
+	{
 		return nodoPrograma->pid == pid;
 	}
 
 	return list_find(programas, matchearPrograma);
 }
 
-Segmento * buscarSegmentoEnProgramaPorVirtual(Programa * programa, uint32_t base) {
+Segmento * buscarSegmentoEnProgramaPorVirtual(Programa * programa, uint32_t base)
+{
 	log_info( logger, "La base que estoy buscando es %d 2", base);
 
-	if (base == programa->stack->inicioVirtual){
+	if (base == programa->stack->inicioVirtual)
+	{
 		log_info( logger,"Es el stack!");
-		return programa->stack;}
-	if (base == programa->script->inicioVirtual){
+		return programa->stack;
+	}
+	if (base == programa->script->inicioVirtual)
+	{
 		log_info( logger,"Es el script!");
-		return programa->script;}
-	if(programa->etiquetas != NULL){
-
-	if (base == programa->etiquetas->inicioVirtual){
-		log_info( logger,"Es el de etiquetas!");
-		return programa->etiquetas;}
-}
-	if (base == programa->instrucciones->inicioVirtual){
+		return programa->script;
+	}
+	if(programa->etiquetas != NULL)
+	{
+		if (base == programa->etiquetas->inicioVirtual)
+		{
+			log_info( logger,"Es el de etiquetas!");
+			return programa->etiquetas;
+		}
+	}
+	if (base == programa->instrucciones->inicioVirtual)
+	{
 		log_info( logger,"Es el de instrucciones!");
-		return programa->instrucciones;}
-	return NULL ;
+		return programa->instrucciones;
+	}
 
+	return NULL ;
 }
 
-Segmento * buscarSegmentoEnProgramaPorReal(Programa * programa, uint32_t base) {
+Segmento * buscarSegmentoEnProgramaPorReal(Programa * programa, uint32_t base)
+{
 	log_info( logger, "La base que estoy buscando es %d 2", base);
 
 	if (base == programa->stack->inicioReal)
 		return programa->stack;
 	if (base == programa->script->inicioReal)
 		return programa->script;
-	if(programa->etiquetas != NULL){
+	if(programa->etiquetas != NULL)
+	{
 		if (base == programa->etiquetas->inicioReal)
 			return programa->etiquetas;
 	}
@@ -130,14 +137,17 @@ Segmento * buscarSegmentoEnProgramaPorReal(Programa * programa, uint32_t base) {
 }
 
 
-bool destruirPrograma( Programa * programa ){
-	bool matchearPrograma(Programa *nodoPrograma) {
-			return nodoPrograma->pid == programa->pid;
-		}
+bool destruirPrograma( Programa * programa )
+{
+	bool matchearPrograma(Programa *nodoPrograma)
+	{
+		return nodoPrograma->pid == programa->pid;
+	}
 
 		list_remove_by_condition( programas, matchearPrograma);
 
-		if( programa != NULL){
+		if( programa != NULL)
+		{
 			log_info( logger, "Destruyendo programa con pid: %d", programa->pid);
 			pthread_rwlock_rdlock(&lockEscrituraLectura);
 			borrarSegmento( programa->stack );

@@ -5,8 +5,8 @@ extern t_log *logger;
 
 extern pthread_rwlock_t lockEscrituraLectura;
 
-Segmento * new_Segmento( uint32_t inicio, uint32_t fin ) {
-
+Segmento * new_Segmento( uint32_t inicio, uint32_t fin )
+{
 	Segmento *segmento		= malloc(sizeof(Segmento));
 	segmento->inicioReal	= inicio;
 	segmento->finReal		= fin - 1;
@@ -20,9 +20,10 @@ Segmento * new_Segmento( uint32_t inicio, uint32_t fin ) {
 
 bool memCopy(Segmento *segmento, uint32_t offset, void *valor, uint32_t length)
 {
-	uint32_t tamanioParaOperar = tamanioSegmento(segmento) - offset;
+	int32_t tamanioParaOperar = tamanioSegmento(segmento) - offset;
 
-	if(length > tamanioParaOperar) {
+	if((int32_t) length > tamanioParaOperar)
+	{
 		log_error(logger, "Segmentation fault al copiar: length: %d, tamanioParaOperar: %d, base: %d, offset: %d", length, tamanioParaOperar, segmento->inicioVirtual, offset);
 		return false;
 	}
@@ -38,9 +39,10 @@ bool memCopy(Segmento *segmento, uint32_t offset, void *valor, uint32_t length)
 
 bool memLeer(Segmento *segmento, void *destino, uint32_t offset, uint32_t length)
 {
-	uint32_t tamanioParaOperar = tamanioSegmento(segmento) - offset;
+	int32_t tamanioParaOperar = tamanioSegmento(segmento) - offset;
 
-	if(length > tamanioParaOperar) {
+	if((int32_t) length > tamanioParaOperar)
+	{
 		log_error(logger, "Segmentation fault al leer: length: %d, tamanioParaOperar: %d, base: %d, offset: %d", length, tamanioParaOperar, segmento->inicioVirtual, offset);
 		return false;
 	}

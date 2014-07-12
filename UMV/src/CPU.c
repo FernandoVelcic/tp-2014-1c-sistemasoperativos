@@ -51,16 +51,26 @@ bool leerMemoria(int socketCPU)
 	Programa* programa = buscarPrograma(leerMemoria.pdi);
 	Segmento* segmento = buscarSegmentoEnProgramaPorVirtual(programa, leerMemoria.base);
 
+
+
+
 	if(segmento == NULL) {
+		socket_RespuestaLeerMemoria *respuestaPorSeg = malloc(sizeof(socket_RespuestaLeerMemoria));
+
 		log_error(logger, "No se encuentra el segmento especificado");
+		respuestaPorSeg->header.size = sizeof(socket_RespuestaLeerMemoria);
+		respuestaPorSeg->status = false;
+		if(send(socketCPU, respuestaPorSeg, sizeof(socket_RespuestaLeerMemoria)+leerMemoria.length, 0) < 0)
+			log_error( logger, "Hubo un error al enviar la respuesta a lectura de memoria");
+		free(respuestaPorSeg);
 		return false;
 	}
 
+	socket_RespuestaLeerMemoria  respuesta;
 	//Respuesta
 	uint32_t tam = sizeof(socket_RespuestaLeerMemoria) + leerMemoria.length;
 	char *buffer = malloc(tam);
 
-	socket_RespuestaLeerMemoria respuesta;
 
 	respuesta.header.size = sizeof(socket_RespuestaLeerMemoria) + leerMemoria.length;
 	respuesta.status = true;
@@ -107,6 +117,13 @@ bool escribirMemoria(int socketCPU)
 
 	if(segmento == NULL) {
 		log_error(logger, "No se encuentra el segmento especificado");
+		socket_RespuestaLeerMemoria *respuestaPorSeg = malloc(sizeof(socket_RespuestaGuardarEnMemoria));
+
+		respuestaPorSeg->header.size = sizeof(socket_RespuestaGuardarEnMemoria);
+		respuestaPorSeg->status = false;
+		if(send(socketCPU, respuestaPorSeg, sizeof(socket_RespuestaGuardarEnMemoria)+guardarMemoria.length, 0) < 0)
+			log_error( logger, "Hubo un error al enviar la respuesta a escritura de memoria");
+		free(respuestaPorSeg);
 		free(buffer);
 		return false;
 	}

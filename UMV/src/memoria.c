@@ -59,7 +59,9 @@ Segmento * crearSegmentoFirstFit( uint32_t tamanio)
 
 		if ((huequito->finReal - huequito->inicioReal + 1) >= tamanio)
 		{
+			pthread_rwlock_rdlock(&lockEscrituraLectura);
 			Segmento * elNuevo = new_Segmento(huequito->inicioReal,huequito->inicioReal + tamanio);
+			pthread_rwlock_unlock(&lockEscrituraLectura);
 			list_destroy(huequitos);
 			return elNuevo;
 		}
@@ -191,16 +193,17 @@ void borrarSegmento(Segmento * segmentoABorrar)
 	{
 		return segmento->id == segmentoABorrar->id;
 	}
-
+	pthread_rwlock_wrlock(&lockEscrituraLectura);
 	list_remove_and_destroy_by_condition( tabla_segmentos, matchearSegmento, free);
+	pthread_rwlock_unlock(&lockEscrituraLectura);
 }
 
 
-Segmento * buscarSegmentoEnTabla( uint32_t base)
+Segmento * buscarSegmentoEnTabla( uint32_t idSeg)
 {
 	bool matchearSegmento( Segmento * segmento)
 	{
-		return segmento->inicioReal == base;
+		return segmento->id == idSeg;
 	}
 
 	return list_find( tabla_segmentos, matchearSegmento);
@@ -210,11 +213,15 @@ Segmento * buscarSegmentoEnTabla( uint32_t base)
 uint32_t memoriaOcupada()
 {
 	uint32_t i = 0, sumador = 0;
+
+	pthread_rwlock_rdlock(&lockEscrituraLectura);
 	for (i = 0; i < list_size(tabla_segmentos); i++)
 	{
 		Segmento * segmento = (Segmento *) list_get(tabla_segmentos, i);
 		sumador += tamanioSegmento( segmento );
 	}
+	pthread_rwlock_unlock(&lockEscrituraLectura);
+
 	return sumador;
 }
 
@@ -283,22 +290,22 @@ uint32_t tamanioSegmento(Segmento * segmento)
 	return (segmento->finReal - segmento->inicioReal + 1);
 }
 
-uint32_t solicitarPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tamanio)
+bool solicitarPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tamanio)
 {
 	Segmento * segmento = buscarSegmentoEnTabla( base);
 	if( segmento == NULL)
 	{
 		log_error( logger, "Segmento solicitado no valido");
-		return -1;
+		return false;
 	}
 
 	if (chequearSegmentatiosFault(segmento, offset, tamanio))
 
-		return -1;
+		return false;
 
 	imprimirBytes( base, offset, tamanio, PorCONSOLA);
 
-	return 1;
+	return true;
 
 }
 
@@ -317,7 +324,7 @@ void imprimirBytes( uint32_t base, uint32_t offset, uint32_t tamanio, char porDo
 	}
 	else{
 		fprintf( archivoDump, "Direccion  \t| \t\t\t\t\tHex Dump  \t\t\t\t   |     ASCII\n");
-		fprintf( archivoDump, "---------------------------------------------------------------------------------\n");
+		fprintf( archivoDump, "------------------------------------------------------------------------------------------------------------------------\n");
 		fprintf( archivoDump, "    %05d  \t| ", alBuffer);
 	}
 
@@ -329,7 +336,7 @@ void imprimirBytes( uint32_t base, uint32_t offset, uint32_t tamanio, char porDo
 		if (porDondeImprimo == PorCONSOLA)
 			printf("%02X ", *posicion);
 		else
-			fprintf( archivoDump, "%02X ", *posicion);
+			fprintf( archivoDump, "%02x ", *posicion);
 
 		hastaLoQueDe++;
 
@@ -398,18 +405,18 @@ void mostrarCaracteres( uint32_t cantidad, unsigned char * mem, char porDondeImp
 	}
 }
 
-uint32_t escribirPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tamanio, uint32_t buffer[])
+bool escribirPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tamanio, uint32_t buffer[])
 {
 	Segmento * segmento = buscarSegmentoEnTabla( base);
 
 	if( segmento == NULL)
 	{
-			log_error( logger, "Segmento solicitado no valido");
-			return -1;
+		log_error( logger, "Segmento solicitado no valido");
+		return false;
 	}
 
 	if (chequearSegmentatiosFault(segmento, offset, tamanio))
-		return -1;
+		return false;
 
 
 	uint32_t alBuffer = (base + offset);
@@ -422,13 +429,12 @@ uint32_t escribirPosicionDeMemoria( uint32_t base, uint32_t offset, uint32_t tam
 		memcpy(memoriaCorrida + i, &buffer[i], 1);
 	}
 
-	return 1;
+	return true;
 
 }
 
 bool chequearSegmentatiosFault(Segmento * segmento, uint32_t offset, uint32_t tamanio)
 {
-
 	if (tamanio > (tamanioSegmento(segmento) - offset))
 		return true;
 
