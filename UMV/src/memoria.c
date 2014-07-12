@@ -357,7 +357,7 @@ void imprimirBytes( uint32_t base, uint32_t offset, uint32_t tamanio, char porDo
 			}
 			else{
 				mostrarCaracteres( hastaLoQueDe, mem, PorARCHIVO);
-				fprintf( archivoDump, "\n---------------------------------------------------------------------------------\n");
+				fprintf( archivoDump, "\n------------------------------------------------------------------------------------------------------------------------\n");
 				fprintf( archivoDump, "    %05d  \t| ", alBuffer);
 			}
 			mem += hastaLoQueDe;
