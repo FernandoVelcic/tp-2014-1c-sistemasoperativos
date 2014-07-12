@@ -22,7 +22,7 @@ OBJS +=  \
 ../commons/Debug/collections/list.o  \
 ../commons/Debug/collections/queue.o  \
 ../commons/Debug/parser/metadata_program.o  \
-../commons/Debug/parser/parser.o
+../commons/Debug/parser/parser.o \
 
 all: crearDir config.o Consola.o CPU.o handshake.o Kernel.o memoria.o Programa.o Segmento.o UMV.o UMV
 
